@@ -136,7 +136,21 @@ if ($secretExists) {
 }
 
 # --------------------------------------------------
-# 6. Deploy the stack
+# 6. Pre-pull images (avoids "No such image" on first Swarm deploy)
+# --------------------------------------------------
+Write-Host "[...] Pulling Docker images (this may take a while on first run)..." -ForegroundColor Blue
+$images = @("postgres:16", "redis:7", "traefik:v3.6.7", "dokploy/dokploy:$dokployVersion")
+foreach ($img in $images) {
+    Write-Host "      Pulling $img ..." -ForegroundColor Blue
+    docker pull $img
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "[WARN] Could not pull $img. Swarm will retry automatically." -ForegroundColor Yellow
+    }
+}
+Write-Host "[OK] Images ready." -ForegroundColor Green
+
+# --------------------------------------------------
+# 7. Deploy the stack
 # --------------------------------------------------
 Write-Host "[...] Deploying Dokploy stack..." -ForegroundColor Blue
 

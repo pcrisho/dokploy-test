@@ -137,7 +137,17 @@ else
 fi
 
 # --------------------------------------------------
-# 6. Deploy the stack
+# 6. Pre-pull images (avoids "No such image" on first Swarm deploy)
+# --------------------------------------------------
+echo -e "${BLUE}[...]${NC} Pulling Docker images (this may take a while on first run)..."
+for img in "postgres:16" "redis:7" "traefik:v3.6.7" "dokploy/dokploy:${DOKPLOY_VERSION}"; do
+    echo -e "      Pulling ${img} ..."
+    docker pull "$img" || echo -e "${YELLOW}[WARN]${NC} Could not pull ${img}. Swarm will retry automatically."
+done
+echo -e "${GREEN}[OK]${NC} Images ready."
+
+# --------------------------------------------------
+# 7. Deploy the stack
 # --------------------------------------------------
 echo -e "${BLUE}[...]${NC} Deploying Dokploy stack..."
 
